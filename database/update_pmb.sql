@@ -1,0 +1,76 @@
+USE db_pmb;
+
+CREATE TABLE IF NOT EXISTS prodi (
+    id_prodi INT AUTO_INCREMENT PRIMARY KEY,
+    nama_prodi VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO prodi (nama_prodi)
+SELECT 'Teknik Informatika'
+WHERE NOT EXISTS (SELECT 1 FROM prodi WHERE nama_prodi = 'Teknik Informatika');
+
+INSERT INTO prodi (nama_prodi)
+SELECT 'Sistem Informasi'
+WHERE NOT EXISTS (SELECT 1 FROM prodi WHERE nama_prodi = 'Sistem Informasi');
+
+INSERT INTO prodi (nama_prodi)
+SELECT 'Manajemen'
+WHERE NOT EXISTS (SELECT 1 FROM prodi WHERE nama_prodi = 'Manajemen');
+
+CREATE TABLE IF NOT EXISTS pendaftar (
+    id_pendaftar INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    nik VARCHAR(30) NOT NULL,
+    tempat_lahir VARCHAR(100) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    jenis_kelamin VARCHAR(20) NOT NULL,
+    agama VARCHAR(30) NOT NULL,
+    alamat TEXT NOT NULL,
+    no_hp VARCHAR(20) NOT NULL,
+    asal_sekolah VARCHAR(100) NOT NULL,
+    jurusan_sekolah VARCHAR(100) NULL,
+    id_prodi INT NOT NULL,
+    status_pendaftaran VARCHAR(30) NOT NULL DEFAULT 'menunggu',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (id_prodi) REFERENCES prodi(id_prodi)
+);
+
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS nik VARCHAR(30) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS tempat_lahir VARCHAR(100) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS tanggal_lahir DATE NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS jenis_kelamin VARCHAR(20) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS agama VARCHAR(30) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS alamat TEXT NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS no_hp VARCHAR(20) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS asal_sekolah VARCHAR(100) NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS jurusan_sekolah VARCHAR(100) NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS id_prodi INT NOT NULL;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS status_pendaftaran VARCHAR(30) NOT NULL DEFAULT 'menunggu';
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pendaftar ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS dokumen (
+    id_dokumen INT AUTO_INCREMENT PRIMARY KEY,
+    id_pendaftar INT NOT NULL,
+    jenis_dokumen VARCHAR(50) NOT NULL,
+    nama_file VARCHAR(255) NOT NULL,
+    status_verifikasi VARCHAR(30) NOT NULL DEFAULT 'menunggu',
+    catatan TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pendaftar) REFERENCES pendaftar(id_pendaftar) ON DELETE CASCADE
+);
+
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS jenis_dokumen VARCHAR(50) NOT NULL;
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS nama_file VARCHAR(255) NOT NULL;
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS status_verifikasi VARCHAR(30) NOT NULL DEFAULT 'menunggu';
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS catatan TEXT NULL;
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE pendaftar
+SET status_pendaftaran = 'diterima'
+WHERE status_pendaftaran = 'terverifikasi';
